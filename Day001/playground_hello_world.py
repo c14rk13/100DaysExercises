@@ -1,0 +1,6 @@
+print("Hello world\nHello World")
+print("Hello " + "there!")
+print("Hello " + input("Como se llama? ") + "!")
+name = input("and, how would you like to be called? ")
+nameLength = len(name)
+print("oh, that name contains " + str(nameLength) + " letters!")

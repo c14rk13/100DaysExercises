@@ -23,9 +23,9 @@ def generate_pass():
 
     pyperclip.copy(passw)
 
-    # OR, use the Entry methods (works in Windows 11)
-    # inp_pass.clipboard_clear()
-    # inp_pass.clipboard_append(passw)
+    # OR, use the ff Entry methods (works in Windows 11)
+    #   inp_pass.clipboard_clear()
+    #   inp_pass.clipboard_append(passw)
 
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
@@ -71,6 +71,33 @@ def add_pass():
     inp_pass.delete(0, END)
 
 
+# ---------------------------- SEARCH ------------------------------- #
+def search(search_txt):
+    try:
+        # Read form JSON file first
+        with open(PASS_FILE, "r") as pass_file:
+            data = json.load(pass_file)
+    except FileNotFoundError:
+        messagebox.showerror("File Not Found", "No data found")
+    else:
+        # Add logic for search to be case-insensitive
+        orig_keys = [key for key in data.keys()] # Website names in original case
+        ci_keys = [key.lower() for key in orig_keys] # Websites in lower cases
+        lc_search = search_txt.lower()
+
+        # Find if website value in the list of keys (all lowercase)
+        if lc_search in ci_keys:
+            key = orig_keys[ci_keys.index(lc_search)] # Get the original case of the key
+            email = data[key]["email"]
+            passw = data[key]["password"]
+            messagebox.showinfo(key,
+                                f"Email: {email}\nPassword: {passw}")
+        else:
+            messagebox.showinfo(search_txt, "Password not found")
+
+
+
+
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
 window.title("Password Manager")
@@ -84,8 +111,11 @@ canvas.grid(column=1, row=0)
 lbl_website = Label(text="Website:")
 lbl_website.grid(column=0, row=1)
 
-inp_website = Entry(width=52)
-inp_website.grid(column=1, row=1, columnspan=2)
+inp_website = Entry(width=33)
+inp_website.grid(column=1, row=1)
+
+btn_search = Button(text="Search", width=15, command= lambda: search(inp_website.get().strip()))
+btn_search.grid(column=2, row=1)
 
 lbl_uname = Label(text="Email/Username:")
 lbl_uname.grid(column=0, row=2)

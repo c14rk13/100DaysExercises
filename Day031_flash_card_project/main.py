@@ -1,70 +1,84 @@
 import random
 import time
 from tkinter import *
+from tkinter import messagebox
 
 import pandas
 
 BACKGROUND_COLOR = "#B1DDC6"
 FONT_TITLE = ("Arial", 40, "italic")
 FONT_WORD = ("Arial", 60, "bold")
-CSV_FILE = "./data/french_words.csv"
+CSV_FILE_MAIN = "./data/french_words.csv"
+CSV_FILE_TO_LEARN = "./data/words_to_learn.csv"
 
-flashcard_words_fr = []
-flashcard_words_en = []
-current_word_idx = -1
+flashcards = []
+current_card = {}
 
 
 # ============================ Functions ===============================
-def get_new_word():
-    global current_word_idx
+def completed():
+    global flip_timer
+    window.after_cancel(flip_timer)
+    messagebox.showinfo(title="Congratulations!",
+                        message="You have completed this deck of flashcards!")
+    btn_wrong.config(state=DISABLED)
+    btn_right.config(state=DISABLED)
 
-    current_word_idx = random.randint(0, len(flashcard_words_fr)-1)
-    # print(f"Current index: {current_word_idx}")
-    # print(f"{flashcard_words_fr[current_word_idx]} - {flashcard_words_en[current_word_idx]}")
-    # print(flashcard_words_fr)
-    # print(flashcard_words_en)
+    flashcard.itemconfig(title, fill="black", text="CONGRATULATIONS!")
+    flashcard.itemconfig(word, fill="black", text="WELL DONE!")
+
+
+def get_new_word():
+    global current_card
+    current_card = random.choice(flashcards)
+
 
 def setup_flashcards():
     # Read list from csv, save to list of dictionaries
-    translated_words = pandas.read_csv(CSV_FILE)
+    try:
+        translated_words = pandas.read_csv(CSV_FILE_TO_LEARN)
+    except FileNotFoundError:
+        translated_words = pandas.read_csv(CSV_FILE_MAIN)
 
-    global flashcard_words_fr, flashcard_words_en
-    flashcard_words_fr = translated_words["French"].to_list()
-    flashcard_words_en = translated_words["English"].to_list()
+    global flashcards
+    flashcards = translated_words.to_dict(orient="records")
 
 
 def check(is_correct):
-    global flashcard_words_fr, flashcard_words_en
+    global flashcards
 
     if is_correct:
         # Remove word from flashcard list
-        flashcard_words_fr.remove(flashcard_words_fr[current_word_idx])
-        flashcard_words_en.remove(flashcard_words_en[current_word_idx])
+        flashcards.remove(current_card)
 
-        # TODO: Add error checking for empty list
+        # Update the words_to_learn csv
+        df_to_learn = pandas.DataFrame(flashcards)
+        df_to_learn.to_csv(CSV_FILE_TO_LEARN, index=False)
 
-    # Show front card with new word
-    get_new_word()
-    flash_front()
+    # Check for empty list
+    if len(flashcards) == 0:
+        completed()
+    else:
+        # Show front card with new word
+        get_new_word()
+        flash_front()
+
 
 
 # ============================ UI ===============================
 def flash_front():
+    global flip_timer
+    window.after_cancel(flip_timer)
     flashcard.itemconfig(card_img, image=img_card_front)
-    flashcard.itemconfig(title, text="French")
-    flashcard.itemconfig(word, text=flashcard_words_fr[current_word_idx])
-    btn_wrong.config(state=DISABLED)
-    btn_right.config(state=DISABLED)
-    window.after(3000, flash_back)
+    flashcard.itemconfig(title, fill="black", text="French")
+    flashcard.itemconfig(word, fill="black", text=current_card["French"])
+    flip_timer = window.after(3000, flip_card)
 
 
-def flash_back():
+def flip_card():
     flashcard.itemconfig(card_img, image=img_card_back)
-    flashcard.itemconfig(title, text="English")
-    flashcard.itemconfig(word, text=flashcard_words_en[current_word_idx])
-    btn_wrong.config(state=NORMAL)
-    btn_right.config(state=NORMAL)
-
+    flashcard.itemconfig(title, fill="white", text="English")
+    flashcard.itemconfig(word, fill="white", text=current_card["English"])
 
 window = Tk()
 window.title("Flashy - French to English")
@@ -95,10 +109,7 @@ btn_right.grid(column=1, row=1)
 
 setup_flashcards()
 get_new_word()
+flip_timer = window.after(3000, flip_card)
 flash_front()
-
-# window.after(3000, flash_back)
-
-
 
 window.mainloop()

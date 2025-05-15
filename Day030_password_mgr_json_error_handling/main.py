@@ -122,7 +122,7 @@ lbl_uname.grid(column=0, row=2)
 
 inp_uname = Entry(width=52)
 inp_uname.grid(column=1, row=2, columnspan=2)
-inp_uname.insert(0, "clarkie.rissa@gmail.com")
+inp_uname.insert(0, "my_email@gmail.com")
 
 lbl_pass = Label(text="Password:")
 lbl_pass.grid(column=0, row=3)

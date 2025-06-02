@@ -64,14 +64,15 @@ now_hour = now.hour
 # TODO: check the sunset/sunrise hours only once daily
 sun_set_rise = get_sunset_sunrise_hours()
 
-# TODO: Loop every 60 seconds
+# Loop every hour seconds
 # Check current hour first, if it's between sunset and sunrise (still dark)
 #   only then check iss position (prevents calling the iss api unnecessarily)
 while True:
-    time.sleep(360)
+    time.sleep(3600)
     if sun_set_rise["sunset"] <= now_hour <= sun_set_rise["sunrise"]:
         if is_iss_near_me():
             # Email myself
+            print(f"ISS is near! - {now}")
             mail_msg = "Subject:ISS is overhead\n\nLook up!"
             email_me.email_me(mail_msg)
 

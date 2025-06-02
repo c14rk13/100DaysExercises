@@ -1,0 +1,7 @@
+[Email]
+smtp = smtp.gmail.com
+from =
+passw =
+to =
+[Weather]
+api =

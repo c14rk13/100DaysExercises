@@ -16,9 +16,9 @@ import datetime as dt
 
 BDAY_FILE = "birthdays.csv"
 NAME_PLACEHOLDER = "[NAME]"
-SMTP_SERVER = "smtp.gmail.com" #Replace with your smtp server
-EMAIL_FROM = "<your email address>"
-EMAIL_PASS = "<your app password>"
+SMTP_SERVER = "" #Replace with your smtp server
+EMAIL_FROM = "" ## "<your email address>"
+EMAIL_PASS = "" #"<your app password>"
 SUBJECT = "It's your birthday!"
 
 
@@ -34,7 +34,7 @@ def read_bday_file():
     df = df[df.month == current_month]
     df = df[df.day == current_day]
 
-    # Return as a list of dictionaries
+     # Return as a list of dictionaries
     # ex: [{'name': 'Test002', 'email': 'me@gmail.com', 'year': 1961, 'month': 5, 'day': 16}]
     return df.to_dict(orient="records")
 

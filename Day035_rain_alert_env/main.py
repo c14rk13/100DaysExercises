@@ -1,6 +1,12 @@
-import util
+# Modified script to be run in PythonAnywhere site
+# All config items referenced as environment variables
+# In pyCharm, use command: "dir Env:" to see the environment variables
+
+import os
+import smtplib
 import requests
 from twilio.rest import Client
+from twilio.http.http_client import TwilioHttpClient
 
 WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 CITY_NAME = "Baguio"
@@ -8,24 +14,20 @@ MY_LAT = 16.402332
 MY_LNG = 120.596008
 
 
-def get_api_key():
-    return util.read_config("Weather")["api_key"]
+def email_me(msg):
+    my_email = os.environ.get("EMAIL_FROM")
+    password = os.environ.get("EMAIL_PASS") # App password
+    to_address = os.environ.get("EMAIL_TO").split(";")
+    smtp_server = os.environ.get("EMAIL_SERVER")
 
-
-def check_current_weather(): #Just a playground
-    api_key = get_api_key()
-    params = {
-        "q": CITY_NAME,
-        "units": "metric",
-        "appid": api_key
-    }
-
-    response = requests.get(url=WEATHER_URL, params=params)
-    response.raise_for_status()
-    data = response.json()
-    weather = data["weather"][0]["main"] #Check for "Rain"
-
-    print(f"Main weather is {weather}")
+    with smtplib.SMTP(smtp_server) as connection: # using "with" closes the connection automatically after
+        connection.starttls()
+        connection.login(user=my_email, password=password)
+        connection.sendmail(
+            from_addr=my_email,
+            to_addrs=to_address,
+            msg=msg
+        )
 
 
 
@@ -43,7 +45,7 @@ def check_current_weather(): #Just a playground
 def will_rain_today():
     umbrella_needed = False
     url_5day_3hrs = "https://api.openweathermap.org/data/2.5/forecast"
-    api_key = get_api_key()
+    api_key = os.environ.get("WEATHER_API_KEY")
     params = {
         "lat": MY_LAT,
         "lon": MY_LNG,
@@ -65,28 +67,19 @@ def will_rain_today():
     return umbrella_needed
 
 
-
-def send_sms(): # Playground only -- unable to send sms using trial US # to PH #
-    twilio_acct = util.read_config("Twilio")
-
-    client = Client(twilio_acct["account_sid"], twilio_acct["auth_token"])
-    message = client.messages.create(
-        body="Bring an umbrella. You'll probably need it!",
-        from_= twilio_acct["from"],
-        to= twilio_acct["to"]
-    )
-
-    print(message.status)
-
-
 def send_whatsapp():
-    twilio_acct = util.read_config("Twilio")
+    acct_id = os.environ.get("TWILIO_ACCT_ID")
+    auth_token = os.environ.get("TWILIO_AUTH")
+    whatsapp_from = os.environ.get("WHATSAPP_FROM")
+    whatsapp_to = os.environ.get("WHATSAPP_TO")
 
-    client = Client(twilio_acct["account_sid"], twilio_acct["auth_token"])
+    proxy_client = TwilioHttpClient(proxy={'http': os.environ['http_proxy'], 'https': os.environ['https_proxy']})
+
+    client = Client(acct_id, auth_token, http_client=proxy_client)
     message = client.messages.create(
-        from_=f'whatsapp:{twilio_acct["whatsapp_from"]}',
+        from_=f"whatsapp:{whatsapp_from}",
         body="Bring an umbrella. You'll probably need it!",
-        to=f'whatsapp:{twilio_acct["whatsapp_to"]}'
+        to=f"whatsapp:{whatsapp_to}"
     )
 
     print(message.status)
@@ -94,3 +87,4 @@ def send_whatsapp():
 
 if will_rain_today():
     send_whatsapp()
+    email_me("Bring an umbrella. You'll probably need it!")

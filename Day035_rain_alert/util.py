@@ -4,6 +4,7 @@ import smtplib
 CONFIG_FILE = "config.ini"
 EMAIL_SECTION = "Email"
 WEATHER_SECTION = "Weather"
+TWILIO_SECTION = "Twilio"
 
 def read_config(section):
     config = configparser.ConfigParser()
@@ -21,6 +22,14 @@ def read_config(section):
     elif section == WEATHER_SECTION:
         config_values ={
             'api_key': config.get(section=WEATHER_SECTION, option="api_key")
+        }
+    elif section == TWILIO_SECTION:
+        config_values ={
+            'account_sid': config.get(section=TWILIO_SECTION, option="account_sid"),
+            'auth_token': config.get(section=TWILIO_SECTION, option="auth_token"),
+            'from': config.get(section=TWILIO_SECTION, option="from"),
+            'whatsapp_from': config.get(section=TWILIO_SECTION, option="whatsapp_from"),
+            'whatsapp_to': config.get(section=TWILIO_SECTION, option="whatsapp_to"),
         }
 
     return config_values

@@ -5,3 +5,10 @@ passw =
 to =
 [Weather]
 api =
+[Twilio]
+account_sid =
+auth_token =
+from =
+to =
+whatsapp_from =
+whatsapp_to =

@@ -1,0 +1,18 @@
+# Try yaml format for config settings
+EMAIL:
+  smtp: smtp.gmail.com
+  from:
+  passw:
+  to:
+WEATHER:
+  api_key:
+TWILIO:
+  account_sid:
+  auth_token:
+  from:
+  to:
+  whatsapp_from:
+  whatsapp_to:
+API:
+  stock_api_key:
+  news_api_key:

@@ -60,7 +60,7 @@ today = datetime.now().date().strftime("%d/%m/%Y")
 current_time = datetime.now().time().strftime("%X")
 
 workout_header = {
-    "Authorization": "Bearer Sh33tti3Trackerizor!"
+    "Authorization": f"Bearer {SHEETY_AUTH}"
 }
 
 for exercise in exercises:
